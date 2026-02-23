@@ -1,14 +1,27 @@
-function OpportunityCard() {
+import PropTypes from 'prop-types'
 
+function OpportunityCard({ 
+    role = "None", 
+    company = "None", 
+    rskills = "None", 
+    oskills = "None",
+    ...props 
+}) {
     return(
-        <div className="OpportunityCard">
-            <h1>Web Dev</h1>
-            <h3>Infosis</h3>
-            <p>Required skills: React,Node,MongoDB</p>
-            <p>optional skills: python,devops</p>
+        <div className="OpportunityCard" {...props}>
+            <h1>{role}</h1>
+            <h3>{company}</h3>
+            <p>{rskills}</p>
+            <p>{oskills}</p>
         </div>
     )
-
 }
+
+OpportunityCard.propTypes = {
+    role: PropTypes.string,
+    company: PropTypes.string,
+    rskills: PropTypes.string,
+    oskills: PropTypes.string
+};
 
 export default OpportunityCard
