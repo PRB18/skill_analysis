@@ -1,0 +1,136 @@
+/**
+ * SkillInput Component Styles
+ * Input field and skill chips styling
+ */
+
+.skill-input-section {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.skill-input-section label {
+  display: block;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Input Container */
+.skill-input-container {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.skill-input {
+  flex: 1;
+  min-width: 0; /* Prevents flex item from overflowing */
+}
+
+.btn-add-skill {
+  background-color: var(--color-accent);
+  color: white;
+  padding: var(--spacing-md) var(--spacing-lg);
+  white-space: nowrap;
+}
+
+.btn-add-skill:hover:not(:disabled) {
+  background-color: #4f46e5;
+}
+
+.btn-add-skill:disabled {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+/* Skills Container */
+.skills-container {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid #334155;
+}
+
+.skills-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: var(--spacing-md);
+  font-weight: 500;
+}
+
+/* Skills List - Chip Layout */
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+/* Individual Skill Chip */
+.skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-full);
+  border: 1px solid #334155;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.skill-chip:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.skill-text {
+  text-transform: capitalize;
+}
+
+/* Remove Button on Chip */
+.skill-remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.skill-remove-btn:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: var(--color-danger);
+}
+
+/* No Skills Message */
+.no-skills-message {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: var(--spacing-xl);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .skill-input-container {
+    flex-direction: column;
+  }
+
+  .btn-add-skill {
+    width: 100%;
+  }
+
+  .skill-chip {
+    font-size: 0.875rem;
+  }
+}
