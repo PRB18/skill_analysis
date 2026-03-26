@@ -7,6 +7,7 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Opportunity = require('./models/Opportunity');
+const connectDB = require('./db');
 
 // Load environment variables
 dotenv.config();
@@ -59,9 +60,8 @@ const opportunitiesData = [
  */
 const seedDatabase = async () => {
   try {
-    // Connect to MongoDB
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/skillmatch';
-    await mongoose.connect(mongoURI);
+    // Connect using shared db module
+    await connectDB();
     console.log('✅ Connected to MongoDB');
 
     // Clear existing opportunities

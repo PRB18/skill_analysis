@@ -33,6 +33,13 @@ router.post('/', async (req, res) => {
       });
     }
 
+    if (skills.length > 50) {
+      return res.status(400).json({
+        success: false,
+        error: 'Too many skills provided. Maximum is 50.'
+      });
+    }
+
     // Create new user
     const user = new User({
       name,

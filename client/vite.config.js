@@ -9,7 +9,7 @@ export default defineConfig({
     // This avoids CORS issues during development
     proxy: {
       '/api': {
-        target: 'http://localhost:5000', // Backend server URL
+        target: 'http://127.0.0.1:5000', // Backend server URL (forced IPv4 to prevent 502s)
         changeOrigin: true,              // Needed for virtual hosted sites
         secure: false                    // Don't verify SSL certificate
       }

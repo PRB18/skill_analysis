@@ -59,19 +59,17 @@ function App() {
     }
   };
 
-  /**
-   * saveUser - Saves user profile to database (optional feature)
-   * POSTs user name and skills to /api/users
-   */
   const saveUser = async () => {
-    if (!userName.trim() || userSkills.length === 0) {
-      setError('Please enter your name and at least one skill');
+    if (userSkills.length === 0) {
+      setError('Please enter at least one skill to save a profile');
       return;
     }
 
+    const finalName = userName.trim() || 'Anonymous User';
+
     try {
       await axios.post('/api/users', {
-        name: userName,
+        name: finalName,
         skills: userSkills
       });
       alert('Profile saved successfully!');
@@ -121,14 +119,13 @@ function App() {
             {loading ? 'Finding Matches...' : 'Find Matches'}
           </button>
 
-          {userName && (
-            <button
-              onClick={saveUser}
-              className="btn-secondary"
-            >
-              Save Profile
-            </button>
-          )}
+          <button
+            onClick={saveUser}
+            disabled={userSkills.length === 0}
+            className="btn-secondary"
+          >
+            Save Profile
+          </button>
         </div>
 
         {/* Error Message */}

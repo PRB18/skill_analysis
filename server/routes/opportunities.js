@@ -6,15 +6,16 @@
 
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Opportunity = require('../models/Opportunity');
 const { fetchAllJobs } = require('../utils/externalApiService');
 
 /**
- * GET /api/opportunities/refresh
+ * POST /api/opportunities/refresh
  * Fetches fresh data from external APIs and caches in database
  * Useful for periodic updates
  */
-router.get('/refresh', async (req, res) => {
+router.post('/refresh', async (req, res) => {
   try {
     console.log('🔄 Fetching jobs from external sources...');
     
@@ -29,9 +30,15 @@ router.get('/refresh', async (req, res) => {
       });
     }
 
-    // Clear old data and insert new jobs
-    await Opportunity.deleteMany({ source: { $in: ['internshala', 'github', 'devpost', 'linkedin'] } });
+    // Insert new jobs first to ensure data reliability
     const saved = await Opportunity.insertMany(newJobs);
+    
+    // Once successful, clear old external data that we just replaced
+    const savedIds = saved.map(job => job._id);
+    await Opportunity.deleteMany({ 
+      source: { $in: ['internshala', 'github', 'devpost', 'linkedin'] },
+      _id: { $nin: savedIds }
+    });
 
     console.log(`✅ Cached ${saved.length} jobs to database`);
 
@@ -58,7 +65,7 @@ router.get('/refresh', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     // Check if opportunities exist in database
-    let opportunities = await Opportunity.find();
+    let opportunities = await Opportunity.find().lean();
 
     // If no opportunities, fetch from external sources
     if (opportunities.length === 0) {
@@ -66,7 +73,9 @@ router.get('/', async (req, res) => {
       const newJobs = await fetchAllJobs();
       
       if (newJobs.length > 0) {
-        opportunities = await Opportunity.insertMany(newJobs);
+        // Use create and then convert to plain objects with toObject, or re-query
+        await Opportunity.insertMany(newJobs);
+        opportunities = await Opportunity.find().lean();
         console.log(`✅ Cached ${opportunities.length} opportunities`);
       }
     }
@@ -91,6 +100,14 @@ router.get('/', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
   try {
+    // Validate ObjectId format to prevent Mongoose CastError
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid opportunity ID format'
+      });
+    }
+
     const opportunity = await Opportunity.findById(req.params.id);
 
     if (!opportunity) {

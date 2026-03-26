@@ -25,7 +25,9 @@
 function calculateMatch(userSkills, requiredSkills, optionalSkills) {
   // Normalize all skills to lowercase for case-insensitive comparison
   const normalizeSkills = (skills) =>
-    skills.map(skill => skill.toLowerCase().trim());
+    skills
+      .filter(skill => typeof skill === 'string' && skill.trim() !== '')
+      .map(skill => skill.toLowerCase().trim());
 
   const normalizedUserSkills = normalizeSkills(userSkills);
   const normalizedRequired = normalizeSkills(requiredSkills);

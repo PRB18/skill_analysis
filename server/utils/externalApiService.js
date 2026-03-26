@@ -55,7 +55,7 @@ async function fetchFromGitHubJobs() {
     });
 
     // Transform GitHub data to our format
-    return response.data.items.slice(0, 3).map(repo => ({
+    return response.data.items.map(repo => ({
       title: `${repo.name} - Tech Challenge`,
       company: repo.owner.login,
       type: 'hackathon',
@@ -117,8 +117,8 @@ async function fetchFromLinkedIn() {
         title: 'Full Stack Engineer Intern',
         company: 'Meta',
         type: 'internship',
-        requiredSkills: ['React', 'Node.js', 'SQL'],
-        optionalSkills: ['GraphQL', 'Python', 'AWS'],
+        requiredSkills: ['react', 'node.js', 'sql'],
+        optionalSkills: ['graphql', 'python', 'aws'],
         applyUrl: 'https://linkedin.com/jobs/search/?keywords=internship',
         source: 'linkedin'
       }

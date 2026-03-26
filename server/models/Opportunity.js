@@ -34,22 +34,16 @@ const opportunitySchema = new mongoose.Schema({
       message: 'Type must be either internship or hackathon'
     }
   },
-  requiredSkills: {
-    type: [String],
-    default: [],
-    // Normalize skills to lowercase for consistent matching
-    set: function(skills) {
-      return skills.map(skill => skill.toLowerCase().trim());
-    }
-  },
-  optionalSkills: {
-    type: [String],
-    default: [],
-    // Normalize skills to lowercase for consistent matching
-    set: function(skills) {
-      return skills.map(skill => skill.toLowerCase().trim());
-    }
-  },
+  requiredSkills: [{
+    type: String,
+    trim: true,
+    lowercase: true
+  }],
+  optionalSkills: [{
+    type: String,
+    trim: true,
+    lowercase: true
+  }],
   applyUrl: {
     type: String,
     default: '#',

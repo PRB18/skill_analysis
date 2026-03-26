@@ -19,14 +19,11 @@ const userSchema = new mongoose.Schema({
     trim: true,
     maxlength: [100, 'Name cannot exceed 100 characters']
   },
-  skills: {
-    type: [String],
-    default: [],
-    // Ensure all skills are lowercase and trimmed for consistency
-    set: function(skills) {
-      return skills.map(skill => skill.toLowerCase().trim());
-    }
-  }
+  skills: [{
+    type: String,
+    trim: true,
+    lowercase: true
+  }]
 }, {
   timestamps: true // Automatically adds createdAt and updatedAt fields
 });
