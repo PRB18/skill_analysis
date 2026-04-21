@@ -1,0 +1,138 @@
+/**
+ * Skill Aliases — Client-side mirror of server/utils/skillAliases.js
+ * Used to normalize skill input on the frontend before sending to the server.
+ * When a user types "js" and hits Add, it is stored and displayed as "javascript".
+ */
+
+export const SKILL_ALIASES = {
+  'js':           'javascript',
+  'es6':          'javascript',
+  'ecmascript':   'javascript',
+  'ts':           'typescript',
+  'jsx':          'react',
+  'react.js':     'react',
+  'reactjs':      'react',
+  'react js':     'react',
+  'vue.js':       'vue',
+  'vuejs':        'vue',
+  'vue js':       'vue',
+  'angular.js':   'angular',
+  'angularjs':    'angular',
+  'nextjs':       'next.js',
+  'next.js':      'next.js',
+  'nuxtjs':       'nuxt.js',
+  'node':         'node.js',
+  'nodejs':       'node.js',
+  'node js':      'node.js',
+  'express.js':   'express',
+  'expressjs':    'express',
+  'py':           'python',
+  'python3':      'python',
+  'tf':           'tensorflow',
+  'tensor flow':  'tensorflow',
+  'sklearn':      'scikit-learn',
+  'scikit':       'scikit-learn',
+  'mongo':        'mongodb',
+  'mongo db':     'mongodb',
+  'postgres':     'postgresql',
+  'psql':         'postgresql',
+  'pg':           'postgresql',
+  'k8s':          'kubernetes',
+  'kube':         'kubernetes',
+  'gcp':          'google cloud',
+  'azure':        'microsoft azure',
+  'ci/cd':        'ci cd',
+  'cicd':         'ci cd',
+  'ml':           'machine learning',
+  'ai':           'artificial intelligence',
+  'dl':           'deep learning',
+  'nlp':          'natural language processing',
+  'cv':           'computer vision',
+  'genai':        'generative ai',
+  'gen ai':       'generative ai',
+  'llm':          'large language models',
+  'c++':          'cpp',
+  'oop':          'object oriented programming',
+  'oops':         'object oriented programming',
+  'dsa':          'data structures',
+  'rest':         'rest api',
+  'restful':      'rest api',
+  'html5':        'html',
+  'css3':         'css',
+  'scss':         'sass',
+  'rn':           'react native',
+  'cn':           'computer networks',
+  'os':           'operating systems',
+  'dbms':         'database management',
+  'cp':           'competitive programming',
+  'web dev':      'web development',
+};
+
+/**
+ * Normalize a single skill string.
+ * @param {string} skill
+ * @returns {string}
+ */
+export function normalizeSkill(skill) {
+  if (typeof skill !== 'string') return '';
+  const cleaned = skill.trim().toLowerCase();
+  return SKILL_ALIASES[cleaned] || cleaned;
+}
+
+/**
+ * Learning resources for common missing skills.
+ * Used in OpportunityCard to show "Learn →" links.
+ */
+export const SKILL_RESOURCES = {
+  'javascript':         'https://javascript.info',
+  'typescript':         'https://www.typescriptlang.org/docs/',
+  'python':             'https://docs.python.org/3/tutorial/',
+  'react':              'https://react.dev/learn',
+  'node.js':            'https://nodejs.org/en/learn',
+  'express':            'https://expressjs.com/en/starter/hello-world.html',
+  'vue':                'https://vuejs.org/guide/introduction.html',
+  'angular':            'https://angular.io/tutorial',
+  'next.js':            'https://nextjs.org/learn',
+  'mongodb':            'https://learn.mongodb.com',
+  'postgresql':         'https://www.postgresql.org/docs/current/tutorial.html',
+  'sql':                'https://www.w3schools.com/sql/',
+  'mysql':              'https://dev.mysql.com/doc/mysql-getting-started/en/',
+  'docker':             'https://docs.docker.com/get-started/',
+  'kubernetes':         'https://kubernetes.io/docs/tutorials/kubernetes-basics/',
+  'aws':                'https://aws.amazon.com/getting-started/',
+  'google cloud':       'https://cloud.google.com/free',
+  'microsoft azure':    'https://learn.microsoft.com/en-us/azure/',
+  'machine learning':   'https://www.coursera.org/specializations/machine-learning-introduction',
+  'tensorflow':         'https://www.tensorflow.org/tutorials',
+  'pytorch':            'https://pytorch.org/tutorials/beginner/basics/intro.html',
+  'scikit-learn':       'https://scikit-learn.org/stable/tutorial/index.html',
+  'data analysis':      'https://pandas.pydata.org/docs/getting_started/index.html',
+  'html':               'https://developer.mozilla.org/en-US/docs/Learn/HTML',
+  'css':                'https://developer.mozilla.org/en-US/docs/Learn/CSS',
+  'sass':               'https://sass-lang.com/guide/',
+  'git':                'https://git-scm.com/book/en/v2',
+  'github':             'https://docs.github.com/en/get-started',
+  'linux':              'https://linuxjourney.com/',
+  'graphql':            'https://graphql.org/learn/',
+  'rest api':           'https://restfulapi.net/',
+  'java':               'https://dev.java/learn/',
+  'cpp':                'https://www.learncpp.com/',
+  'c#':                 'https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/',
+  'rust':               'https://doc.rust-lang.org/book/',
+  'go':                 'https://go.dev/learn/',
+  'swift':              'https://swift.org/documentation/',
+  'flutter':            'https://flutter.dev/learn',
+  'react native':       'https://reactnative.dev/docs/getting-started',
+  'ci cd':              'https://www.redhat.com/en/topics/devops/what-is-ci-cd',
+  'devops':             'https://roadmap.sh/devops',
+  'data structures':    'https://www.geeksforgeeks.org/data-structures/',
+  'algorithms':         'https://www.geeksforgeeks.org/fundamentals-of-algorithms/',
+  'competitive programming': 'https://codeforces.com/',
+  'problem solving':    'https://leetcode.com/problemset/',
+  'computer vision':    'https://learnopencv.com/',
+  'natural language processing': 'https://www.nltk.org/book/',
+  'deep learning':      'https://www.deeplearning.ai/courses/',
+  'artificial intelligence': 'https://ai.google/education/',
+  'solidity':           'https://docs.soliditylang.org/en/latest/',
+  'web3':               'https://web3js.readthedocs.io/',
+};

@@ -1,17 +1,12 @@
 /**
- * User Model
- * Defines the schema for users who want to find matching opportunities
- * Users have a name and an array of skills they possess
+ * User Model — with Auth
+ * Stores name, email, hashed password, and skills.
+ * Skills are loaded automatically after login.
  */
 
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
-/**
- * User Schema Definition
- * @property {String} name - Full name of the user
- * @property {[String]} skills - Array of skills the user possesses (e.g., ["React", "Node.js", "Python"])
- * @property {Date} createdAt - Timestamp when user was created
- */
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -19,17 +14,43 @@ const userSchema = new mongoose.Schema({
     trim: true,
     maxlength: [100, 'Name cannot exceed 100 characters']
   },
+  email: {
+    type: String,
+    required: [true, 'Email is required'],
+    unique: true,
+    trim: true,
+    lowercase: true,
+    // Validates format only — checks proper structure like user@domain.tld
+    // Does NOT verify the email actually exists (would need a mail service for that)
+    match: [
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      'Please enter a valid email address (e.g. you@gmail.com)'
+    ]
+  },
+  passwordHash: {
+    type: String,
+    required: true,
+    select: false  // Never returned in queries by default
+  },
   skills: [{
     type: String,
     trim: true,
     lowercase: true
   }]
 }, {
-  timestamps: true // Automatically adds createdAt and updatedAt fields
+  timestamps: true // adds createdAt, updatedAt
 });
 
-/**
- * Create and export the User model
- * Collection name in MongoDB will be 'users'
- */
+// Hash password before saving
+// Note: async hooks in Mongoose don't use next() — just return from the async function
+userSchema.pre('save', async function () {
+  if (!this.isModified('passwordHash')) return;
+  this.passwordHash = await bcrypt.hash(this.passwordHash, 12);
+});
+
+// Instance method to check password
+userSchema.methods.comparePassword = async function (candidate) {
+  return bcrypt.compare(candidate, this.passwordHash);
+};
+
 module.exports = mongoose.model('User', userSchema);

@@ -1,21 +1,11 @@
 /**
  * OpportunityCard Component
- * Displays a single opportunity with match data
- * Shows readiness score, matched/missing skills, and recommendations
- *
- * Props:
- *   - title: Job/hackathon title
- *   - company: Company name
- *   - type: 'internship' or 'hackathon'
- *   - requiredSkills: Array of required skills
- *   - optionalSkills: Array of optional skills
- *   - matchedRequired: User skills that match required skills
- *   - matchedOptional: User skills that match optional skills
- *   - missingSkills: Required skills user doesn't have
- *   - readinessScore: Percentage (0-100)
- *   - applyUrl: URL to apply for the opportunity
+ * Displays a single opportunity with match data.
+ * Shows readiness score, matched/missing skills, "Learn →" resource links,
+ * and a working "Apply Now" button that opens the real opportunity URL.
  */
 
+import { SKILL_RESOURCES } from '../utils/skillAliases';
 import './OpportunityCard.css';
 
 function OpportunityCard({
@@ -28,136 +18,154 @@ function OpportunityCard({
   matchedOptional,
   missingSkills,
   readinessScore,
-  applyUrl
+  applyUrl,
+  location,
+  prizePool,
+  source,
+  description
 }) {
-  /**
-   * getScoreColor - Returns color based on readiness score
-   * Green: 70%+ (good match)
-   * Yellow: 40-70% (moderate match)
-   * Red: Below 40% (needs more skills)
-   */
   const getScoreColor = () => {
-    if (readinessScore >= 70) return '#22c55e'; // Green
-    if (readinessScore >= 40) return '#eab308'; // Yellow
-    return '#ef4444'; // Red
+    if (readinessScore >= 70) return '#22c55e';
+    if (readinessScore >= 40) return '#eab308';
+    return '#ef4444';
   };
 
-  /**
-   * getMessage - Returns encouragement message based on score
-   */
-  const getMessage = () => {
+  const getScoreLabel = () => {
     if (readinessScore === 100) return "You're ready! 🎉";
-    if (readinessScore >= 70) return 'Almost there! 💪';
+    if (readinessScore >= 70)  return 'Almost there! 💪';
+    if (readinessScore >= 40)  return 'Good start! 📈';
     return 'Keep learning! 📚';
   };
 
-  /**
-   * capitalize - Capitalizes first letter of a string
-   */
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+  // Source label mappings
+  const sourceLabels = {
+    devpost:  '🏆 Devpost',
+    remotive: '🌐 Remotive',
+    mlh:      '🎓 MLH',
+    manual:   '✍️ Manual',
+    fallback: '📌 Featured'
+  };
 
   return (
     <article className="opportunity-card">
-      {/* Header: Company and Title */}
+      {/* Header */}
       <header className="card-header">
-        <div className="company-info">
-          <h3 className="company-name">{company}</h3>
-          <span className={`type-badge type-${type}`}>
-            {capitalize(type)}
-          </span>
+        <div className="card-header-row">
+          <div className="company-info">
+            <h3 className="company-name">{company}</h3>
+            <div className="card-badges">
+              <span className={`type-badge type-${type}`}>
+                {capitalize(type)}
+              </span>
+              {source && sourceLabels[source] && (
+                <span className="source-badge">{sourceLabels[source]}</span>
+              )}
+            </div>
+          </div>
         </div>
         <h4 className="job-title">{title}</h4>
+
+        {/* Meta info row */}
+        <div className="card-meta">
+          {location && (
+            <span className="meta-item">📍 {location}</span>
+          )}
+          {prizePool && (
+            <span className="meta-item">💰 {prizePool}</span>
+          )}
+        </div>
+
+        {description && (
+          <p className="card-description">{description}</p>
+        )}
       </header>
 
-      {/* Readiness Score Section */}
+      {/* Readiness Score */}
       <section className="score-section">
         <div className="score-header">
           <span className="score-label">Readiness Score</span>
-          <span
-            className="score-value"
-            style={{ color: getScoreColor() }}
-          >
+          <span className="score-value" style={{ color: getScoreColor() }}>
             {readinessScore}%
           </span>
         </div>
-
-        {/* Progress Bar */}
         <div className="progress-bar-container">
           <div
             className="progress-bar"
-            style={{
-              width: `${readinessScore}%`,
-              backgroundColor: getScoreColor()
-            }}
+            style={{ width: `${readinessScore}%`, backgroundColor: getScoreColor() }}
           />
         </div>
-
-        {/* Encouragement Message */}
         <p className="score-message" style={{ color: getScoreColor() }}>
-          {getMessage()}
+          {getScoreLabel()}
         </p>
       </section>
 
-      {/* Skills Section */}
+      {/* Skills Breakdown */}
       <section className="skills-section">
-        {/* Required Skills - Matched (Green) */}
+        {/* ✓ Matched Required Skills */}
         {matchedRequired.length > 0 && (
           <div className="skill-group">
-            <h5 className="skill-group-title">
-              ✓ Skills You Have (Required)
-            </h5>
+            <h5 className="skill-group-title">✓ You have (Required)</h5>
             <div className="skill-chips">
-              {matchedRequired.map((skill, index) => (
-                <span key={index} className="skill-chip skill-matched">
-                  {skill}
-                </span>
+              {matchedRequired.map((skill, i) => (
+                <span key={i} className="skill-chip skill-matched">{skill}</span>
               ))}
             </div>
           </div>
         )}
 
-        {/* Missing Skills (Red) */}
+        {/* ✗ Missing Required Skills — with Learn links */}
         {missingSkills.length > 0 && (
           <div className="skill-group">
-            <h5 className="skill-group-title">
-              ✗ Skills to Learn (Required)
-            </h5>
+            <h5 className="skill-group-title">✗ Skills to learn (Required)</h5>
             <div className="skill-chips">
-              {missingSkills.map((skill, index) => (
-                <span key={index} className="skill-chip skill-missing">
-                  {skill}
-                </span>
-              ))}
+              {missingSkills.map((skill, i) => {
+                const resourceUrl = SKILL_RESOURCES[skill];
+                return (
+                  <span key={i} className="skill-chip skill-missing skill-missing-wrap">
+                    <span>{skill}</span>
+                    {resourceUrl && (
+                      <a
+                        href={resourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="learn-link"
+                        title={`Free resources to learn ${skill}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Learn →
+                      </a>
+                    )}
+                  </span>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* Optional Skills - Matched (Blue) */}
+        {/* ★ Optional Skills Matched */}
         {matchedOptional.length > 0 && (
           <div className="skill-group">
-            <h5 className="skill-group-title">
-              ★ Bonus Skills (Optional)
-            </h5>
+            <h5 className="skill-group-title">★ Bonus skills you have</h5>
             <div className="skill-chips">
-              {matchedOptional.map((skill, index) => (
-                <span key={index} className="skill-chip skill-optional">
-                  {skill}
-                </span>
+              {matchedOptional.map((skill, i) => (
+                <span key={i} className="skill-chip skill-optional">{skill}</span>
               ))}
             </div>
           </div>
         )}
       </section>
 
-      {/* Footer: Summary and Apply Button */}
+      {/* Footer: Skills summary + Apply button */}
       <footer className="card-footer">
         <p className="skills-summary">
           Required: {matchedRequired.length}/{requiredSkills.length} matched
           {optionalSkills.length > 0 &&
-            ` • Optional: ${matchedOptional.length}/${optionalSkills.length} matched`}
+            ` • Optional: ${matchedOptional.length}/${optionalSkills.length}`}
         </p>
         <a
-          href={applyUrl || '#'}
+          href={applyUrl && applyUrl !== '#' ? applyUrl : 'https://devpost.com/hackathons'}
           target="_blank"
           rel="noopener noreferrer"
           className="apply-button"

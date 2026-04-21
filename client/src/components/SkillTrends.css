@@ -1,0 +1,86 @@
+.skill-trends {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.trends-header {
+  margin-bottom: 1.5rem;
+}
+
+.trends-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0 0 0.4rem 0;
+}
+
+.trends-subtitle {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.trends-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.trend-item {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.trend-rank {
+  font-size: 1.1rem;
+  text-align: center;
+  min-width: 2rem;
+}
+
+.trend-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.trend-skill {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-transform: capitalize;
+}
+
+.trend-bar-container {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.trend-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 99px;
+  transition: width 0.8s ease;
+}
+
+.trend-count {
+  font-size: 0.75rem;
+  color: #64748b;
+  white-space: nowrap;
+  min-width: 70px;
+  text-align: right;
+}
+
+.trends-footer {
+  margin: 1.25rem 0 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.85rem;
+  color: #94a3b8;
+}

@@ -134,3 +134,25 @@
     font-size: 0.875rem;
   }
 }
+
+/* Hint text below label */
+.skill-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: -0.25rem 0 0.75rem;
+  opacity: 0.8;
+}
+
+/* Alias notification (e.g. "js → javascript") */
+.alias-note {
+  font-size: 0.8rem;
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  margin-bottom: 0.75rem;
+  text-align: center;
+  animation: fadeIn 0.25s ease;
+}

@@ -1,6 +1,6 @@
 /**
  * Match Routes
- * Handles skill matching between users and opportunities
+ * Handles skill matching between users and opportunities.
  * Base path: /api/match
  */
 
@@ -8,86 +8,147 @@ const express = require('express');
 const router = express.Router();
 const Opportunity = require('../models/Opportunity');
 const { calculateMatch } = require('../utils/matchingAlgorithm');
+const { normalizeSkills } = require('../utils/skillAliases');
 const mockOpportunities = require('../utils/mockData');
 
 /**
  * POST /api/match
- * Runs matching algorithm against ALL opportunities
- * Body: { skills: [String] }
- * Returns: Array of opportunities with match data, sorted by readinessScore (descending)
+ * Runs matching algorithm against all active, non-expired opportunities.
+ * Skills are normalized (js→javascript, py→python, etc.) before matching.
  *
- * Response format for each opportunity:
- * {
- *   ...opportunity data,
- *   matchData: {
- *     matchedRequired: [...],
- *     matchedOptional: [...],
- *     missingSkills: [...],
- *     readinessScore: number
- *   }
- * }
+ * Body: { skills: string[] }
+ * Returns: Opportunities sorted by readinessScore descending, with matchData.
  */
-// Mock opportunities moved to utils/mockData.js
-
 router.post('/', async (req, res) => {
   try {
     const { skills } = req.body;
 
-    // Validate skills array
-    if (!skills || !Array.isArray(skills) || skills.length === 0) {
+    // Manual validation — simple and reliable
+    if (!Array.isArray(skills) || skills.length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'Skills array is required and cannot be empty'
+        error: 'skills must be a non-empty array of strings'
       });
     }
-
     if (skills.length > 50) {
       return res.status(400).json({
         success: false,
-        error: 'Too many skills provided. Maximum is 50.'
+        error: 'Maximum 50 skills allowed'
+      });
+    }
+    // Ensure every element is a non-empty string
+    const invalid = skills.find(s => typeof s !== 'string' || s.trim().length === 0);
+    if (invalid !== undefined) {
+      return res.status(400).json({
+        success: false,
+        error: 'Each skill must be a non-empty string'
       });
     }
 
+    // Normalize user skills using the alias map (js→javascript, py→python, etc.)
+    const userSkills = normalizeSkills(skills);
+
+    // Fetch opportunities — DB if available, mock data as fallback
     let opportunities;
     try {
-      // Try to fetch from database, returning plain JS objects
-      opportunities = await Opportunity.find().lean();
+      opportunities = await Opportunity.find({
+        isActive: true,
+        $or: [
+          { deadline: null },
+          { deadline: { $exists: false } },
+          { deadline: { $gte: new Date() } }
+        ]
+      }).lean();
+
+      // If DB is up but empty (no upserted data yet), use mock data
+      if (opportunities.length === 0) {
+        opportunities = mockOpportunities;
+      }
     } catch (dbError) {
-      // Fallback to mock data if database is unavailable
-      console.log('⚠️  Using mock data (database unavailable)');
+      console.log('⚠️  DB unavailable — using mock data:', dbError.message);
       opportunities = mockOpportunities;
     }
 
     // Calculate match for each opportunity
     const matches = opportunities.map(opportunity => {
-      // Run matching algorithm
       const matchData = calculateMatch(
-        skills,
-        opportunity.requiredSkills,
-        opportunity.optionalSkills
+        userSkills,
+        opportunity.requiredSkills || [],
+        opportunity.optionalSkills || []
       );
-
-      // Return opportunity with match data merged
-      return {
-        ...opportunity,
-        matchData
-      };
+      return { ...opportunity, matchData };
     });
 
-    // Sort by readinessScore descending (highest matches first)
-    matches.sort((a, b) => b.matchData.readinessScore - a.matchData.readinessScore);
+    // Sort: highest readinessScore first, then by optional skill count
+    matches.sort((a, b) => {
+      if (b.matchData.readinessScore !== a.matchData.readinessScore) {
+        return b.matchData.readinessScore - a.matchData.readinessScore;
+      }
+      return b.matchData.matchedOptional.length - a.matchData.matchedOptional.length;
+    });
 
     res.json({
       success: true,
       count: matches.length,
+      normalizedSkills: userSkills,
       data: matches
     });
+
   } catch (error) {
-    console.error('Error calculating matches:', error);
+    console.error('Match route error:', error);
+    // Return actual error message in dev for easier debugging
     res.status(500).json({
       success: false,
-      error: 'Failed to calculate matches'
+      error: process.env.NODE_ENV === 'production'
+        ? 'Failed to calculate matches'
+        : error.message
     });
+  }
+});
+
+
+/**
+ * GET /api/match/trends
+ * Returns the top N most-demanded skills across all active opportunities.
+ * Unique differentiator: shows students what skills to learn next.
+ *
+ * Query: ?limit=10 (default 10)
+ */
+router.get('/trends', async (req, res) => {
+  try {
+    const limit = Math.min(20, parseInt(req.query.limit) || 10);
+
+    // Aggregate skill frequency across all active opportunities
+    const trends = await Opportunity.aggregate([
+      { $match: { isActive: true } },
+      { $unwind: '$requiredSkills' },
+      { $group: { _id: '$requiredSkills', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: limit },
+      { $project: { skill: '$_id', count: 1, _id: 0 } }
+    ]);
+
+    // If DB is empty, return sensible defaults
+    const fallback = [
+      { skill: 'javascript', count: 45 },
+      { skill: 'python', count: 38 },
+      { skill: 'react', count: 32 },
+      { skill: 'node.js', count: 28 },
+      { skill: 'sql', count: 25 },
+      { skill: 'docker', count: 20 },
+      { skill: 'machine learning', count: 18 },
+      { skill: 'aws', count: 15 },
+      { skill: 'git', count: 14 },
+      { skill: 'css', count: 12 }
+    ];
+
+    res.json({
+      success: true,
+      data: trends.length > 0 ? trends : fallback
+    });
+  } catch (error) {
+    console.error('Trends error:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch trends' });
   }
 });
 

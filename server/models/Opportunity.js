@@ -1,20 +1,11 @@
 /**
  * Opportunity Model
- * Defines the schema for internships and hackathons
- * Opportunities have required and optional skills for matching
+ * Defines the schema for internships and hackathons.
+ * Extended with caching metadata, deadline tracking, and rich detail fields.
  */
 
 const mongoose = require('mongoose');
 
-/**
- * Opportunity Schema Definition
- * @property {String} title - Job/hackathon title
- * @property {String} company - Company or organization name
- * @property {String} type - Type of opportunity: 'internship' or 'hackathon'
- * @property {[String]} requiredSkills - Skills that are mandatory for the role
- * @property {[String]} optionalSkills - Skills that are nice-to-have but not required
- * @property {Date} createdAt - Timestamp when opportunity was created
- */
 const opportunitySchema = new mongoose.Schema({
   title: {
     type: String,
@@ -51,19 +42,51 @@ const opportunitySchema = new mongoose.Schema({
   },
   source: {
     type: String,
-    enum: ['internshala', 'github', 'devpost', 'linkedin', 'manual'],
+    enum: ['devpost', 'remotive', 'mlh', 'manual', 'fallback'],
     default: 'manual'
   },
   description: {
     type: String,
     default: ''
+  },
+  // Location info (Remote / City / Country)
+  location: {
+    type: String,
+    default: 'Remote'
+  },
+  // Prize pool for hackathons, stipend for internships
+  prizePool: {
+    type: String,
+    default: ''
+  },
+  // Application deadline (optional — used to filter out expired listings)
+  deadline: {
+    type: Date,
+    default: null
+  },
+  // Whether this listing is still active/visible to users
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  // When data was last fetched from external API — used for cache TTL
+  fetchedAt: {
+    type: Date,
+    default: Date.now
   }
 }, {
-  timestamps: true // Automatically adds createdAt and updatedAt fields
+  timestamps: true
 });
 
-/**
- * Create and export the Opportunity model
- * Collection name in MongoDB will be 'opportunities'
- */
+// Text index for full-text search on title and description
+opportunitySchema.index(
+  { title: 'text', description: 'text', company: 'text' },
+  { weights: { title: 3, company: 2, description: 1 } }
+);
+
+// Regular index for fast skill-based queries
+opportunitySchema.index({ requiredSkills: 1 });
+opportunitySchema.index({ type: 1, isActive: 1 });
+opportunitySchema.index({ source: 1 });
+
 module.exports = mongoose.model('Opportunity', opportunitySchema);
