@@ -62,32 +62,15 @@ app.use(express.json({ limit: '10kb' }));
 
 // ─── DATABASE + STARTUP SEED ───────────────────────────────────────────
 
-connectDB().then(async () => {
-  // Seed real data on first boot if DB is empty
+// ─── DB CONNECTION MIDDLEWARE ───────────────────────────────────────────
+// Ensures MongoDB is connected before every API request (required for serverless)
+app.use('/api/', async (req, res, next) => {
   try {
-    const mongoose = require('mongoose');
-    if (mongoose.connection.readyState === 1) { // 1 = connected
-      const Opportunity = require('./models/Opportunity');
-      const { fetchAllJobs } = require('./utils/externalApiService');
-
-      const count = await Opportunity.countDocuments();
-      if (count === 0) {
-        console.log('📥 No data in DB — seeding with real API data...');
-        const jobs = await fetchAllJobs();
-        for (const job of jobs) {
-          await Opportunity.findOneAndUpdate(
-            { applyUrl: job.applyUrl },
-            { $set: { ...job, fetchedAt: new Date() } },
-            { upsert: true, new: true, runValidators: true }
-          );
-        }
-        console.log(`✅ Seeded ${jobs.length} real opportunities`);
-      } else {
-        console.log(`📋 DB has ${count} opportunities (using existing data)`);
-      }
-    }
-  } catch (seedErr) {
-    console.warn('⚠️  Startup seed failed (mock data will be used):', seedErr.message);
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('DB connection failed:', err.message);
+    res.status(503).json({ success: false, error: 'Database unavailable. Please try again.' });
   }
 });
 
