@@ -36,16 +36,18 @@ app.use('/api/', apiLimiter);
 // ─── CORS ───────────────────────────────────────────────────────────────
 
 const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:3000',
+  process.env.CLIENT_URL,
   'http://localhost:3000',
   'http://localhost:3001',
-  'http://localhost:5173'
-];
+  'http://localhost:5173',
+  'https://skill-analysis-five.vercel.app'
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (Postman, mobile apps)
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Also allow any vercel.app subdomain for preview deployments
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
