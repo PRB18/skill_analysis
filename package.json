@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "npm install --prefix server && npm install --prefix client && npm --prefix client run build"
+    "build": "npm install --prefix server && npm install --include=dev --prefix client && npm --prefix client run build"
   },
   "dependencies": {
     "pptxgenjs": "^4.0.1"
